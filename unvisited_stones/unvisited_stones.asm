@@ -62,3 +62,9 @@ unvisited_stones:
     mov esp, ebp
     pop ebp
     ret
+
+; ---------------------------------------------------------- ;
+; [ Запуск и компиляция с NASM ]                             ;
+; nasm -f elf32 unvisited_stones.asm -o unvisited_stones.o   ;
+; gcc -m32 main.c unvisited_stones.o -o program && ./program ;
+; ---------------------------------------------------------- ;
