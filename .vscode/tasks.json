@@ -20,7 +20,9 @@
                 "kind": "build",
                 "isDefault": false
             },
-            "problemMatcher": ["$gcc"],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "detail": "Компиляция C++ с помощью g++"
         },
         {
@@ -65,12 +67,32 @@
                 "Build: Java",
                 "Run: JavaScript"
             ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Запуск всех задач сборки"
+        },
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++.exe сборка активного файла",
+            "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": [],
-            "detail": "Запуск всех задач сборки"
+            "detail": "Задача создана отладчиком."
         }
     ]
 }
