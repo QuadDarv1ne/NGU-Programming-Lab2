@@ -1,0 +1,56 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Project 1 (UnvisitedStones)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/unvisited_stones/UnvisitedStones/bin/Debug/net8.0/UnvisitedStones.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/unvisited_stones/UnvisitedStones",
+            "console": "internalConsole",
+            "preLaunchTask": "build-unvisited_stones"
+        },
+        {
+            "name": "Launch Project 2 (PangramChecker)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/pangram_checker/PangramChecker/bin/Debug/net8.0/PangramChecker.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/pangram_checker/PangramChecker",
+            "console": "internalConsole",
+            "preLaunchTask": "build-pangram_checker"
+        },
+        {
+            "name": "Launch Project 3 (DigitOps)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/digit_ops/DigitOps/bin/Debug/net8.0/DigitOps.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/digit_ops/DigitOps",
+            "console": "internalConsole",
+            "preLaunchTask": "build-digit_ops"
+        },
+        {
+            "name": "C++ Launch (GDB)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build-cpp",
+            "miDebuggerPath": "/usr/bin/gdb"
+        }
+    ]
+}
