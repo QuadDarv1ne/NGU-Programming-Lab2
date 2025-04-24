@@ -1,38 +1,45 @@
 {
+    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
+    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
+    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
+
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Project 1 (UnvisitedStones)",
+            "name": "UnvisitedStones (Debug)",
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceFolder}/unvisited_stones/UnvisitedStones/bin/Debug/net8.0/UnvisitedStones.dll",
             "args": [],
             "cwd": "${workspaceFolder}/unvisited_stones/UnvisitedStones",
             "console": "internalConsole",
-            "preLaunchTask": "build-unvisited_stones"
+            "preLaunchTask": "build-unvisited-stones",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
         },
         {
-            "name": "Launch Project 2 (PangramChecker)",
+            "name": "PangramChecker (Debug)",
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceFolder}/pangram_checker/PangramChecker/bin/Debug/net8.0/PangramChecker.dll",
             "args": [],
             "cwd": "${workspaceFolder}/pangram_checker/PangramChecker",
             "console": "internalConsole",
-            "preLaunchTask": "build-pangram_checker"
+            "preLaunchTask": "build-pangram-checker"
         },
         {
-            "name": "Launch Project 3 (DigitOps)",
+            "name": "DigitOps (Debug)",
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceFolder}/digit_ops/DigitOps/bin/Debug/net8.0/DigitOps.dll",
             "args": [],
             "cwd": "${workspaceFolder}/digit_ops/DigitOps",
-            "console": "internalConsole",
-            "preLaunchTask": "build-digit_ops"
+            "console": "externalTerminal",
+            "preLaunchTask": "build-digit-ops"
         },
         {
-            "name": "C++ Launch (GDB)",
+            "name": "C++ (GDB Debug)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
@@ -40,7 +47,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
+            "externalConsole": true,
             "MIMode": "gdb",
             "setupCommands": [
                 {
