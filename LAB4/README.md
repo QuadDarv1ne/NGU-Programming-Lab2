@@ -4,6 +4,33 @@
 
 `Основная цель коллоквиума` — углубленное обсуждение темы, проверка понимания материала и развитие навыков критического мышления у студентов.
 
+```bash
+g++ nonlinear_equation_solver.cpp -o nonlinear_equation_solver
+./nonlinear_equation_solver
+
+g++ ArrayOperations.cpp -o ArrayOperations
+./ArrayOperations
+
+g++ linear_congruential_generator.cpp -o linear_congruential_generator
+./linear_congruential_generator
+
+g++ ElectionSystem.cpp -o ElectionSystem
+./ElectionSystem
+
+g++ PrisonersDilemma.cpp -o PrisonersDilemma
+./PrisonersDilemma
+```
+
+```bash
+go run nonlinear_equation_solver.go
+go run ArrayOperations.go
+go run linear_congruential_generator.go
+go run election.go
+go run prisoners_dilemma.go
+
+go build
+```
+
 --
 
 💼 **Автор:** Дуплей Максим Игоревич
