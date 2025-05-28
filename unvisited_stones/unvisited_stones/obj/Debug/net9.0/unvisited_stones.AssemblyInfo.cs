@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("unvisited_stones")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b7ef2c3681aacbf3e3b0d43c9ee756991547b5ae")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c346af3a942b97b62d0ca8c22a0eeedd29d588c3")]
 [assembly: System.Reflection.AssemblyProductAttribute("unvisited_stones")]
 [assembly: System.Reflection.AssemblyTitleAttribute("unvisited_stones")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
