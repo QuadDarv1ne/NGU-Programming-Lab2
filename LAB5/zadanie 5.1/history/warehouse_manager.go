@@ -49,12 +49,12 @@ import (
 	"strings"
 )
 
-// Параметры склада для варианта 9
-var zones = []rune{'A'}
+// Параметры склада
+var zones = []rune{'A', 'B', 'C', 'D'}
 
-const racksPerZone = 5
-const sectionsPerRack = 5
-const shelvesPerSection = 15
+const racksPerZone = 8
+const sectionsPerRack = 2
+const shelvesPerSection = 1
 const cellCapacity = 10
 
 var totalCapacity = len(zones) * racksPerZone * sectionsPerRack * shelvesPerSection * cellCapacity
@@ -71,7 +71,7 @@ func initializeWarehouse() {
 		for rack := 1; rack <= racksPerZone; rack++ {
 			for section := 1; section <= sectionsPerRack; section++ {
 				for shelf := 1; shelf <= shelvesPerSection; shelf++ {
-					address := fmt.Sprintf("%c%d%d%02d", zone, rack, section, shelf)
+					address := fmt.Sprintf("%c%d%d%d", zone, rack, section, shelf)
 					warehouse[address] = &Cell{
 						products: make(map[string]int),
 						total:    0,
@@ -83,29 +83,8 @@ func initializeWarehouse() {
 }
 
 func isValidAddress(address string) bool {
-	if len(address) != 5 {
-		return false
-	}
-	if rune(address[0]) != 'A' {
-		return false
-	}
-
-	rack, err := strconv.Atoi(string(address[1]))
-	if err != nil || rack < 1 || rack > 5 {
-		return false
-	}
-
-	section, err := strconv.Atoi(string(address[2]))
-	if err != nil || section < 1 || section > 5 {
-		return false
-	}
-
-	shelf, err := strconv.Atoi(address[3:])
-	if err != nil || shelf < 1 || shelf > 15 {
-		return false
-	}
-
-	return true
+	_, exists := warehouse[address]
+	return exists
 }
 
 func processAdd(tokens []string) {

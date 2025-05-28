@@ -26,9 +26,6 @@
  * 
  * @warning Нумерация для пользователя начинается с 1, но внутренне обрабатывается как целые числа
  * @note Использует стандартные контейнеры STL: map, vector
- * 
- * Словарь терминов:
- * quantity (amount) - количество
  */
 
 #include <iostream>
@@ -37,22 +34,21 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
-#include <cstdio>
 
 using namespace std;
 
-// Параметры склада для варианта 9
-const char ZONES[] = {'A'};
-const int NUM_ZONES = 1;
-const int RACKS_PER_ZONE = 5;
-const int SECTIONS_PER_RACK = 5;
-const int SHELVES_PER_SECTION = 15;
+// Параметры склада для варианта 3
+const char ZONES[] = {'A', 'B', 'C', 'D'};
+const int NUM_ZONES = 4;
+const int RACKS_PER_ZONE = 8;
+const int SECTIONS_PER_RACK = 2;
+const int SHELVES_PER_SECTION = 1;
 const int CELL_CAPACITY = 10;
 const int TOTAL_CAPACITY = NUM_ZONES * RACKS_PER_ZONE * SECTIONS_PER_RACK * SHELVES_PER_SECTION * CELL_CAPACITY;
 
 struct Cell {
-    map<string, int> products;
-    int total = 0;
+    map<string, int> products; // товар -> количество
+    int total = 0;             // общее количество товаров
 };
 
 map<string, Cell> warehouse;
@@ -63,9 +59,9 @@ void initialize_warehouse() {
         for (int rack = 1; rack <= RACKS_PER_ZONE; rack++) {
             for (int section = 1; section <= SECTIONS_PER_RACK; section++) {
                 for (int shelf = 1; shelf <= SHELVES_PER_SECTION; shelf++) {
-                    char address[6];
-                    snprintf(address, sizeof(address), "%c%d%d%02d", zone, rack, section, shelf);
-                    warehouse[address] = Cell();
+                    ostringstream oss;
+                    oss << zone << rack << section << shelf;
+                    warehouse[oss.str()] = Cell();
                 }
             }
         }
@@ -74,17 +70,7 @@ void initialize_warehouse() {
 
 // Проверка корректности адреса
 bool is_valid_address(const string& address) {
-    if (address.length() != 5) return false;
-    if (address[0] != 'A') return false;
-    
-    int rack = address[1] - '0';
-    if (rack < 1 || rack > 5) return false;
-    
-    int section = address[2] - '0';
-    if (section < 1 || section > 5) return false;
-    
-    int shelf = stoi(address.substr(3,2));
-    return (shelf >= 1 && shelf <= 15);
+    return warehouse.find(address) != warehouse.end();
 }
 
 // Обработка команды ADD
