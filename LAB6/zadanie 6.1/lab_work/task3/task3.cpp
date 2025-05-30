@@ -20,10 +20,9 @@
 #include <thread>
 #include <chrono>
 #include <string>
+#include <locale>
 #ifdef _WIN32
 #include <windows.h>
-#else
-#include <unistd.h>
 #endif
 using namespace std;
 
@@ -168,7 +167,8 @@ public:
     void display(const string& title) const {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                cout << (grid[i][j] ? '■' : ' ');
+                // Используем Unicode символ для живой клетки
+                cout << (grid[i][j] ? "\u25A0" : " ");
             }
             cout << endl;
         }
@@ -182,6 +182,9 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     #endif
+
+    // Настройка локали
+    setlocale(LC_ALL, "en_US.UTF-8");
     
     srand(time(nullptr));
     const int ROWS = 20;
