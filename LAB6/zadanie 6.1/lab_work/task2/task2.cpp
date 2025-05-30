@@ -12,9 +12,19 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 using namespace std;
 
 int main() {
+    // Поддержка UTF-8 для Windows
+    #ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+    #endif
+    
     int N;
     cout << "Введите количество строк матрицы: ";
     cin >> N;

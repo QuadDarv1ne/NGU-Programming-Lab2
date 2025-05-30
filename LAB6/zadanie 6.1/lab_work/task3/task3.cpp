@@ -177,6 +177,12 @@ public:
 };
 
 int main() {
+    // Поддержка UTF-8 для Windows
+    #ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+    #endif
+    
     srand(time(nullptr));
     const int ROWS = 20;
     const int COLS = 40;
