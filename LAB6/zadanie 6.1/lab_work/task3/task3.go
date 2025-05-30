@@ -191,6 +191,11 @@ func (ca *CellularAutomaton) display(title string) {
 }
 
 func main() {
+	// Поддержка UTF-8 для Windows
+    if runtime.GOOS == "windows" {
+        exec.Command("cmd", "/c", "chcp 65001").Run()
+    }
+	
 	rand.Seed(time.Now().UnixNano())
 	const ROWS = 20
 	const COLS = 40

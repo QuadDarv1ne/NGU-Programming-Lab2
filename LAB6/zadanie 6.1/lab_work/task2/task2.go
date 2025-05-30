@@ -11,9 +11,17 @@
 
 package main
 
-import "fmt"
+import ("fmt",
+		"os",
+    	"runtime"
+)
 
 func main() {
+	// Поддержка UTF-8 для Windows
+    if runtime.GOOS == "windows" {
+        exec.Command("cmd", "/c", "chcp 65001").Run()
+    }
+
 	var N int
 	fmt.Print("Введите количество строк матрицы: ")
 	fmt.Scan(&N)

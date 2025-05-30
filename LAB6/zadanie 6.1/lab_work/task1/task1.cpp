@@ -18,9 +18,19 @@
 #include <ctime>
 #include <algorithm>
 #include <limits>
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 using namespace std;
 
 int main() {
+    // Поддержка UTF-8 для Windows
+    #ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+    #endif
+
     srand(time(nullptr));
     int N;
     cout << "Введите размер матрицы N: ";
