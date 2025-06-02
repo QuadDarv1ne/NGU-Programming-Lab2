@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <openssl/bn.h>
 #include <openssl/rand.h>
 
@@ -18,49 +19,14 @@ BIGNUM* generate_prime(int bits) {
     return prime;
 }
 
-// Расширенный алгоритм Евклида
-BIGNUM* extended_gcd(BIGNUM* a, BIGNUM* b, BIGNUM* *x, BIGNUM* *y, BN_CTX* ctx) {
-    if (BN_is_zero(b)) {
-        *x = BN_new();
-        *y = BN_new();
-        BN_one(*x);
-        BN_zero(*y);
-        return a;
-    }
-    
-    BIGNUM* x1 = BN_new();
-    BIGNUM* y1 = BN_new();
-    BIGNUM* gcd = extended_gcd(b, BN_mod(a, b, b, ctx), &x1, &y1, ctx);
-    
-    *x = y1;
-    *y = BN_new();
-    BN_mul(y1, x1, a, ctx);
-    BN_div(y1, NULL, y1, b, ctx);
-    BN_sub(*y, x1, y1);
-    
-    BN_free(x1);
-    BN_free(y1);
-    
-    return gcd;
-}
-
-// Функция для вычисления обратного элемента по модулю
+// Функция для вычисления обратного элемента по модулю (используем встроенную функцию OpenSSL)
 BIGNUM* mod_inverse(BIGNUM* a, BIGNUM* m, BN_CTX* ctx) {
-    BIGNUM* x;
-    BIGNUM* y;
-    BIGNUM* g = extended_gcd(a, m, &x, &y, ctx);
-    
-    if (!BN_is_one(g)) {
-        BN_free(g);
-        BN_free(x);
-        BN_free(y);
+    BIGNUM* inv = BN_new();
+    if (!BN_mod_inverse(inv, a, m, ctx)) {
+        BN_free(inv);
         return nullptr;
     }
-    
-    BN_mod_add(x, x, m, m, ctx); // Обеспечиваем положительный результат
-    BN_free(g);
-    BN_free(y);
-    return x;
+    return inv;
 }
 
 // Шифрование RSA
@@ -72,6 +38,7 @@ BIGNUM* rsa_encrypt(const std::string& message, BIGNUM* e, BIGNUM* n, BN_CTX* ct
     // Проверка, что m < n
     if (BN_cmp(m, n) >= 0) {
         BN_free(m);
+        std::cerr << "Ошибка: сообщение слишком длинное для ключа" << std::endl;
         return nullptr;
     }
     
@@ -98,11 +65,10 @@ std::string rsa_decrypt(BIGNUM* c, BIGNUM* d, BIGNUM* n, BN_CTX* ctx) {
     
     // Преобразование числа в строку
     int size = BN_num_bytes(m);
-    unsigned char* buffer = new unsigned char[size];
-    BN_bn2bin(m, buffer);
-    std::string result((char*)buffer, size);
+    std::vector<unsigned char> buffer(size);
+    BN_bn2bin(m, buffer.data());
+    std::string result(buffer.begin(), buffer.end());
     
-    delete[] buffer;
     BN_free(m);
     return result;
 }
@@ -117,6 +83,8 @@ int main() {
 
     // Генерация ключей
     const int bits = 256; // Размер ключа в битах
+    
+    std::cout << "Генерация ключей RSA (" << bits << " бит)..." << std::endl;
     
     // Генерация двух простых чисел
     BIGNUM* p = generate_prime(bits);
@@ -161,11 +129,18 @@ int main() {
     std::string message;
     std::cout << "Введите сообщение для шифрования: ";
     std::getline(std::cin, message);
+    
+    // Проверка длины сообщения
+    if (message.size() > BN_num_bytes(n) - 11) {
+        std::cerr << "Ошибка: сообщение слишком длинное" << std::endl;
+        std::cerr << "Максимальная длина: " << BN_num_bytes(n) - 11 << " байт" << std::endl;
+        return 1;
+    }
 
     // Шифрование
     BIGNUM* ciphertext = rsa_encrypt(message, e, n, ctx);
     if (!ciphertext) {
-        std::cerr << "Ошибка шифрования: сообщение слишком длинное" << std::endl;
+        std::cerr << "Ошибка шифрования" << std::endl;
         return 1;
     }
 
