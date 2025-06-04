@@ -35,7 +35,7 @@ using namespace std;
  * 
  * @param a Первое число (целое)
  * @param b Второе число (целое)
- * @return tuple<long long, long long, long long> 
+ * @return tuple<int, int, int> 
  *         (gcd, x, y) где:
  *         gcd - наибольший общий делитель a и b
  *         x, y - коэффициенты Безу
@@ -43,13 +43,13 @@ using namespace std;
  * @note Временная сложность: O(log min(a,b))
  * @example extendedEuclid(30, 12) = (6, 1, -2)
  */
-tuple<long long, long long, long long> extendedEuclid(long long a, long long b) {
-    long long old_r = a, r = b;
-    long long old_s = 1, s = 0;
-    long long old_t = 0, t = 1;
+tuple<int, int, int> extendedEuclid(int a, int b) {
+    int old_r = a, r = b;
+    int old_s = 1, s = 0;
+    int old_t = 0, t = 1;
 
     while (r != 0) {
-        long long quotient = old_r / r;
+        int quotient = old_r / r;
         
         // Обновление коэффициентов с использованием кортежей
         tie(old_r, r) = make_tuple(r, old_r - quotient * r);
@@ -67,14 +67,14 @@ tuple<long long, long long, long long> extendedEuclid(long long a, long long b) 
  * 
  * @param a Число, для которого ищем обратный элемент
  * @param m Модуль (должен быть положительным)
- * @return long long Обратный элемент d в диапазоне [0, m-1]
+ * @return int Обратный элемент d в диапазоне [0, m-1]
  * 
  * @throws invalid_argument Если m <= 0
  * @throws runtime_error Если обратный элемент не существует (gcd(a, m) != 1)
  * 
  * @example modInverse(7, 15) = 13
  */
-long long modInverse(long long a, long long m) {
+int modInverse(int a, int m) {
     if (m <= 0) {
         throw invalid_argument("Модуль должен быть положительным");
     }
@@ -113,14 +113,14 @@ long long modInverse(long long a, long long m) {
  * 
  * @example isPrime(1000000007) = true
  */
-bool isPrime(long long n) {
+bool isPrime(int n) {
     if (n <= 1) return false;
     if (n <= 3) return true;  // 2 и 3 - простые
     if (n % 2 == 0 || n % 3 == 0) return false;
     
-    long long limit = sqrt(n) + 1;
+    int limit = sqrt(n) + 1;
     // Проверка делителей вида 6k ± 1
-    for (long long i = 5; i <= limit; i += 6) {
+    for (int i = 5; i <= limit; i += 6) {
         if (n % i == 0 || n % (i + 2) == 0) {
             return false;
         }
@@ -136,13 +136,13 @@ bool isPrime(long long n) {
  * @param base Основание
  * @param exp Показатель степени (неотрицательный)
  * @param mod Модуль (должен быть > 0)
- * @return long long Результат: base^exp mod m
+ * @return int Результат: base^exp mod m
  * 
  * @throws invalid_argument Если mod <= 0
  * 
  * @example modExp(2, 10, 1000) = 24
  */
-long long modExp(long long base, long long exp, long long mod) {
+int modExp(int base, int exp, int mod) {
     if (mod <= 0) {
         throw invalid_argument("Модуль должен быть положительным");
     }
@@ -151,7 +151,7 @@ long long modExp(long long base, long long exp, long long mod) {
     base %= mod;
     if (base < 0) base += mod;  // Нормализация основания
     
-    long long result = 1;
+    int result = 1;
     while (exp > 0) {
         if (exp & 1) {
             result = (result * base) % mod;
@@ -167,18 +167,18 @@ int main() {
     cout << "Решает уравнение: c * d ≡ 1 (mod m)" << endl;
     cout << "-----------------------------------------------" << endl;
     
-    long long a, m;
+    int a, m;
     cout << "Введите число a и модуль m: ";
     cin >> a >> m;
 
     try {
         // Основной метод вычисления
-        long long inverse = modInverse(a, m);
+        int inverse = modInverse(a, m);
         cout << "\n[Результат]" << endl;
         cout << "Обратный элемент d = " << inverse << endl;
         
         // Проверка результата
-        long long check = (a * inverse) % m;
+        int check = (a * inverse) % m;
         if (check < 0) check += m;
         cout << "Проверка: " << a << " * " << inverse << " mod " << m << " = " << check << endl;
 
@@ -187,10 +187,10 @@ int main() {
             cout << "\n[Верификация теоремой Ферма]" << endl;
             cout << "Модуль простой (" << m << "), используем a^{m-2} mod m" << endl;
             
-            long long fermat_inverse = modExp(a, m - 2, m);
+            int fermat_inverse = modExp(a, m - 2, m);
             cout << "Обратный элемент: " << fermat_inverse << endl;
             
-            long long fermat_check = (a * fermat_inverse) % m;
+            int fermat_check = (a * fermat_inverse) % m;
             if (fermat_check < 0) fermat_check += m;
             cout << "Проверка: " << a << " * " << fermat_inverse << " mod " << m << " = " 
                  << fermat_check << endl;
