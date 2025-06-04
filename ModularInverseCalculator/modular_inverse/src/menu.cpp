@@ -1,16 +1,18 @@
 #include "menu.h"
 #include "euclid.h"
 #include "fermat.h"
+#include "modular_inverse.h" // Добавлен новый заголовок
 #include "rsa.h"
 #include <iostream>
 #include <stdexcept>
 
 void display_menu() {
     std::cout << "\n=== Модулярная арифметика и криптография ===" << std::endl;
-    std::cout << "1. Вычисление обратного элемента через алгоритм Евклида" << std::endl;
-    std::cout << "2. Вычисление обратного элемента через теорему Ферма" << std::endl;
-    std::cout << "3. Демонстрация RSA шифрования" << std::endl;
-    std::cout << "4. Выход" << std::endl;
+    std::cout << "1. Базовое вычисление обратного элемента (перебор)" << std::endl;
+    std::cout << "2. Вычисление обратного элемента через алгоритм Евклида" << std::endl;
+    std::cout << "3. Вычисление обратного элемента через теорему Ферма" << std::endl;
+    std::cout << "4. Демонстрация RSA шифрования" << std::endl;
+    std::cout << "5. Выход" << std::endl;
     std::cout << "Выберите опцию: ";
 }
 
@@ -23,7 +25,20 @@ void run_main_menu() {
         
         try {
             switch (choice) {
-                case 1: {
+                case 1: {  // Базовый метод
+                    int v, c;
+                    std::cout << "Введите v и c: ";
+                    std::cin >> v >> c;
+                    
+                    int d = modularInverse(v, c);
+                    std::cout << "Обратный элемент d = " << d << std::endl;
+                    
+                    long long check = static_cast<long long>(v) * d % c;
+                    if (check < 0) check += c;
+                    std::cout << "Проверка: " << v << " * " << d << " mod " << c << " = " << check << std::endl;
+                    break;
+                }
+                case 2: {  // Алгоритм Евклида
                     int v, c;
                     std::cout << "Введите v и c: ";
                     std::cin >> v >> c;
@@ -36,7 +51,7 @@ void run_main_menu() {
                     std::cout << "Проверка: " << v << " * " << d << " mod " << c << " = " << check << std::endl;
                     break;
                 }
-                case 2: {
+                case 3: {  // Теорема Ферма
                     long long a, p;
                     std::cout << "Введите число a: ";
                     std::cin >> a;
@@ -55,11 +70,11 @@ void run_main_menu() {
                     }
                     break;
                 }
-                case 3: {
+                case 4: {  // RSA
                     run_rsa_demo();
                     break;
                 }
-                case 4:
+                case 5:  // Выход
                     std::cout << "Выход из программы..." << std::endl;
                     break;
                 default:
@@ -70,5 +85,5 @@ void run_main_menu() {
             std::cerr << "Ошибка: " << e.what() << std::endl;
         }
         
-    } while (choice != 4);
+    } while (choice != 5);
 }
