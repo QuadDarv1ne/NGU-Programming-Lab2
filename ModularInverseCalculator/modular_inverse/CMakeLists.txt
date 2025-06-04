@@ -16,6 +16,7 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 add_executable(modular_inverse
     src/euclid.cpp
     src/fermat.cpp
+    src/modular_inverse.cpp
     src/rsa.cpp
     src/menu.cpp
     src/main.cpp
