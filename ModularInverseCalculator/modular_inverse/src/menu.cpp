@@ -1,7 +1,7 @@
 #include "menu.h"
 #include "euclid.h"
 #include "fermat.h"
-#include "modular_inverse.h" // Добавлен новый заголовок
+#include "modular_inverse.h"
 #include "rsa.h"
 #include <iostream>
 #include <stdexcept>
@@ -25,7 +25,7 @@ void run_main_menu() {
         
         try {
             switch (choice) {
-                case 1: {  // Базовый метод
+                case 1: {  // Базовый метод (перебор)
                     int v, c;
                     std::cout << "Введите v и c: ";
                     std::cin >> v >> c;
