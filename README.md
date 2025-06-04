@@ -11,6 +11,12 @@ git config --global user.email "maksimqwe42@mail.ru"
 git config --global user.name "QuadDarv1ne"
 ```
 
+```bash
+```
+sudo apt update
+sudo apt install pipx
+pipx ensurepath
+​​​​​​​pipx install iredis
 ---
 
 **Преподаватель:** Дуплей Максим Игоревич
