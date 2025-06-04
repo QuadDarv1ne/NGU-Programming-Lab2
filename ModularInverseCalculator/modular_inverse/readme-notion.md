@@ -27,3 +27,14 @@ g++ -Iinclude -std=c++17 -o modular_inverse src/euclid.cpp src/modular_inverse.c
 # Запускаем программу
 .\modular_inverse
 ```
+
+```textline
+rm -rf *
+cmake ..
+make
+```
+
+```textline
+CTRL+SHIFT+C <- копирование
+CTRL+SHIFT+V <- вставка
+```
