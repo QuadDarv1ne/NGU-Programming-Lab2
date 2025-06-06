@@ -7,47 +7,55 @@
  */
 
 #include "aes_cfb.h"
-#include <iostream>
-#include <iomanip>
 #include <openssl/aes.h>
 #include <openssl/rand.h>
-#include <stdexcept>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
-void generate_random_bytes(unsigned char* buffer, int length) {
-    if (RAND_bytes(buffer, length) != 1) {
-        throw std::runtime_error("Error generating random bytes");
+AES_CFB::AES_CFB() : key_(generate_key()), iv_(generate_iv()) {}
+
+AES_CFB::Key AES_CFB::generate_key() {
+    Key key;
+    if (RAND_bytes(key.data(), key.size()) != 1) {
+        throw std::runtime_error("Failed to generate random key");
+    }
+    return key;
+}
+
+AES_CFB::IV AES_CFB::generate_iv() {
+    IV iv;
+    if (RAND_bytes(iv.data(), iv.size()) != 1) {
+        throw std::runtime_error("Failed to generate random IV");
+    }
+    return iv;
+}
+
+void AES_CFB::validate_key_iv() const {
+    if (key_.empty() || iv_.empty()) {
+        throw std::runtime_error("Key or IV not initialized");
     }
 }
 
-void print_state(const unsigned char* state, const std::string& label) {
-    std::cout << label << ": ";
-    for (int i = 0; i < AES_BLOCK_SIZE; ++i) {
-        std::cout << std::hex << std::setw(2) << std::setfill('0') 
-                 << (int)state[i] << " ";
-    }
-    std::cout << std::dec << std::endl;
-}
-
-std::vector<unsigned char> aes_cfb_encrypt(const std::string& plaintext, 
-                                         const unsigned char* key, 
-                                         const unsigned char* iv) {
+std::vector<unsigned char> AES_CFB::encrypt(const std::string& plaintext) {
+    validate_key_iv();
+    const std::string padded = add_padding(plaintext);
+    
     AES_KEY aes_key;
-    if (AES_set_encrypt_key(key, 128, &aes_key) < 0) {
+    if (AES_set_encrypt_key(key_.data(), 128, &aes_key) < 0) {
         throw std::runtime_error("Failed to set encryption key");
     }
     
-    std::vector<unsigned char> ciphertext(plaintext.size());
-    unsigned char ivec[AES_BLOCK_SIZE];
-    memcpy(ivec, iv, AES_BLOCK_SIZE);
-    
+    std::vector<unsigned char> ciphertext(padded.size());
+    IV ivec = iv_;
     int num = 0;
     
     AES_cfb128_encrypt(
-        reinterpret_cast<const unsigned char*>(plaintext.data()),
+        reinterpret_cast<const unsigned char*>(padded.data()),
         ciphertext.data(),
-        plaintext.size(),
+        padded.size(),
         &aes_key,
-        ivec,
+        ivec.data(),
         &num,
         AES_ENCRYPT
     );
@@ -55,18 +63,16 @@ std::vector<unsigned char> aes_cfb_encrypt(const std::string& plaintext,
     return ciphertext;
 }
 
-std::string aes_cfb_decrypt(const std::vector<unsigned char>& ciphertext, 
-                           const unsigned char* key, 
-                           const unsigned char* iv) {
+std::string AES_CFB::decrypt(const std::vector<unsigned char>& ciphertext) {
+    validate_key_iv();
+    
     AES_KEY aes_key;
-    if (AES_set_encrypt_key(key, 128, &aes_key) < 0) {
+    if (AES_set_encrypt_key(key_.data(), 128, &aes_key) < 0) {
         throw std::runtime_error("Failed to set encryption key");
     }
     
     std::string plaintext(ciphertext.size(), '\0');
-    unsigned char ivec[AES_BLOCK_SIZE];
-    memcpy(ivec, iv, AES_BLOCK_SIZE);
-    
+    IV ivec = iv_;
     int num = 0;
     
     AES_cfb128_encrypt(
@@ -74,10 +80,48 @@ std::string aes_cfb_decrypt(const std::vector<unsigned char>& ciphertext,
         reinterpret_cast<unsigned char*>(&plaintext[0]),
         ciphertext.size(),
         &aes_key,
-        ivec,
+        ivec.data(),
         &num,
         AES_DECRYPT
     );
     
-    return plaintext;
+    return remove_padding(plaintext);
+}
+
+std::string AES_CFB::add_padding(const std::string& data) const {
+    size_t pad_len = BLOCK_SIZE - (data.size() % BLOCK_SIZE);
+    if (pad_len == 0) pad_len = BLOCK_SIZE;
+    return data + std::string(pad_len, static_cast<char>(pad_len));
+}
+
+std::string AES_CFB::remove_padding(const std::string& data) const {
+    if (data.empty()) return data;
+    size_t pad_len = static_cast<unsigned char>(data.back());
+    if (pad_len > BLOCK_SIZE) return data;
+    return data.substr(0, data.size() - pad_len);
+}
+
+std::string AES_CFB::bytes_to_hex(const unsigned char* data, size_t length) {
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (size_t i = 0; i < length; ++i) {
+        oss << std::setw(2) << static_cast<int>(data[i]);
+    }
+    return oss.str();
+}
+
+void AES_CFB::save_key_to_file(const std::string& filename) const {
+    std::ofstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Failed to open key file for writing");
+    }
+    file.write(reinterpret_cast<const char*>(key_.data()), key_.size());
+}
+
+void AES_CFB::load_key_from_file(const std::string& filename) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Failed to open key file for reading");
+    }
+    file.read(reinterpret_cast<char*>(key_.data()), key_.size());
 }
