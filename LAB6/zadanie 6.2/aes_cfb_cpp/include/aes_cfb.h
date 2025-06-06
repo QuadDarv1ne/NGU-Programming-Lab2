@@ -6,47 +6,46 @@
  * работы с ключами и вспомогательных функций.
  */
 
-#ifndef AES_CFB_H
-#define AES_CFB_H
+#pragma once
 
 #include <vector>
 #include <string>
+#include <stdexcept>
+#include <array>
 
-/**
- * @brief Генерирует случайные байты
- * @param buffer Буфер для записи случайных данных
- * @param length Длина буфера
- * @throws std::runtime_error Если не удалось сгенерировать случайные байты
- */
-void generate_random_bytes(unsigned char* buffer, int length);
+class AES_CFB {
+public:
+    static constexpr size_t BLOCK_SIZE = 16;
+    
+    using Key = std::array<unsigned char, BLOCK_SIZE>;
+    using IV = std::array<unsigned char, BLOCK_SIZE>;
 
-/**
- * @brief Выводит состояние (state) в шестнадцатеричном формате
- * @param state Указатель на данные
- * @param label Метка для вывода
- */
-void print_state(const unsigned char* state, const std::string& label);
+    AES_CFB();
+    
+    // Генерация ключа и IV
+    static Key generate_key();
+    static IV generate_iv();
+    
+    // Основные операции
+    std::vector<unsigned char> encrypt(const std::string& plaintext);
+    std::string decrypt(const std::vector<unsigned char>& ciphertext);
+    
+    // Управление ключами
+    void set_key(const Key& key) { key_ = key; }
+    void set_iv(const IV& iv) { iv_ = iv; }
+    const Key& get_key() const { return key_; }
+    const IV& get_iv() const { return iv_; }
+    
+    // Утилиты
+    static std::string bytes_to_hex(const unsigned char* data, size_t length);
+    void save_key_to_file(const std::string& filename) const;
+    void load_key_from_file(const std::string& filename);
 
-/**
- * @brief Шифрует данные в режиме CFB
- * @param plaintext Исходный текст
- * @param key Ключ шифрования (16 байт)
- * @param iv Вектор инициализации (16 байт)
- * @return Вектор с зашифрованными данными
- */
-std::vector<unsigned char> aes_cfb_encrypt(const std::string& plaintext, 
-                                         const unsigned char* key, 
-                                         const unsigned char* iv);
-
-/**
- * @brief Дешифрует данные в режиме CFB
- * @param ciphertext Зашифрованные данные
- * @param key Ключ шифрования (16 байт)
- * @param iv Вектор инициализации (16 байт)
- * @return Расшифрованная строка
- */
-std::string aes_cfb_decrypt(const std::vector<unsigned char>& ciphertext, 
-                           const unsigned char* key, 
-                           const unsigned char* iv);
-
-#endif // AES_CFB_H
+private:
+    Key key_;
+    IV iv_;
+    
+    void validate_key_iv() const;
+    std::string add_padding(const std::string& data) const;
+    std::string remove_padding(const std::string& data) const;
+};
