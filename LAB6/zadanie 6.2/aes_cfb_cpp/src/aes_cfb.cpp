@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
 
 // Конструктор с автоматической генерацией ключей
 AES_CFB::AES_CFB() {
