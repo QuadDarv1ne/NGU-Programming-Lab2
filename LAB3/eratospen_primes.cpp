@@ -274,4 +274,79 @@ void print_table(const string& title, const vector<uint64_t>& numbers) {
     const int col_width = 14;
     const int result_width = 17;
     
-    cout << "┌" << string(col_width + result_width + 3, '
+    cout << "┌" << string(col_width + result_width + 3, '─') << "┐" << endl;
+    cout << "│ " << setw(col_width + result_width + 1) << left << title << "│" << endl;
+    cout << "├" << string(col_width, '─') << "┬" << string(result_width + 1, '─') << "┤" << endl;
+    cout << "│ " << setw(col_width) << "Число" << " │ " << setw(result_width) << "Результат" << "│" << endl;
+    cout << "├" << string(col_width, '─') << "┼" << string(result_width + 1, '─') << "┤" << endl;
+    
+    for (uint64_t num : numbers) {
+        bool is_prime = gost_test(num);
+        cout << "│ " << setw(col_width) << num << " │ " 
+             << setw(result_width) << (is_prime ? "Простое" : "Составное") << "│" << endl;
+    }
+    
+    cout << "└" << string(col_width, '─') << "┴" << string(result_width + 1, '─') << "┘" << endl << endl;
+}
+
+int main() {
+    const int BITS = 14;
+    const int NUM_TESTS = 10;
+    
+    auto start = chrono::high_resolution_clock::now();
+    auto primes = sieve_of_eratosthenes();
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Решето Эратосфена выполнено за " 
+         << chrono::duration_cast<chrono::milliseconds>(end - start).count() 
+         << " мс" << endl;
+    
+    // Генерация чисел для тестов
+    vector<uint64_t> miller_primes;
+    vector<uint64_t> poklington_primes;
+    vector<uint64_t> gost_primes;
+    
+    start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < NUM_TESTS; ++i) {
+        miller_primes.push_back(generate_prime_miller(BITS, primes));
+    }
+    end = chrono::high_resolution_clock::now();
+    cout << "Генерация чисел Миллером выполнена за " 
+         << chrono::duration_cast<chrono::milliseconds>(end - start).count() 
+         << " мс" << endl;
+    
+    start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < NUM_TESTS; ++i) {
+        poklington_primes.push_back(generate_prime_poklington(BITS, primes));
+    }
+    end = chrono::high_resolution_clock::now();
+    cout << "Генерация чисел Поклингтоном выполнена за " 
+         << chrono::duration_cast<chrono::milliseconds>(end - start).count() 
+         << " мс" << endl;
+    
+    start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < NUM_TESTS; ++i) {
+        gost_primes.push_back(gost_generate_prime(BITS));
+    }
+    end = chrono::high_resolution_clock::now();
+    cout << "Генерация чисел по ГОСТ выполнена за " 
+         << chrono::duration_cast<chrono::milliseconds>(end - start).count() 
+         << " мс" << endl << endl;
+    
+    // Вывод таблиц
+    print_table("Тест Миллера (" + to_string(NUM_TESTS) + " чисел)", miller_primes);
+    print_table("Тест Поклингтона (" + to_string(NUM_TESTS) + " чисел)", poklington_primes);
+    print_table("Тест ГОСТ Р 34.10-94 (" + to_string(NUM_TESTS) + " чисел)", gost_primes);
+    
+    // Вывод статистики по отброшенным вариантам
+    cout << "┌───────────────────────────────────┐" << endl;
+    cout << "│        Статистика отбраковки      │" << endl;
+    cout << "├───────────────────┬───────────────┤" << endl;
+    cout << "│     Метод         │ Отброшено     │" << endl;
+    cout << "├───────────────────┼───────────────┤" << endl;
+    cout << "│ Тест Миллера      │ " << setw(13) << miller_rejected << " │" << endl;
+    cout << "│ Тест Поклингтона  │ " << setw(13) << poklington_rejected << " │" << endl;
+    cout << "│ Тест ГОСТ         │ " << setw(13) << gost_rejected << " │" << endl;
+    cout << "└───────────────────┴───────────────┘" << endl;
+
+    return 0;
+}
