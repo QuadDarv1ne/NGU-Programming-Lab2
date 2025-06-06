@@ -56,6 +56,22 @@
 - `Go` (версия 1.16+)
 - Установленные `GOPATH` и `GO111MODULE=on`
 
+## Установка зависимостей
+
+- Для Ubuntu/Debian
+
+```bash
+sudo apt update
+sudo apt install build-essential cmake libssl-dev
+```
+
+- Для Windows (с использованием vcpkg)
+
+```bash
+vcpkg install openssl:x64-windows
+cmake -DCMAKE_TOOLCHAIN_FILE=[path-to-vcpkg]/scripts/buildsystems/vcpkg.cmake ..
+```
+
 ## Установка и запуск
 
 C++: ./build.sh затем build/bin/aes_cfb_demo
