@@ -1,105 +1,21 @@
 #include "../include/aes_cfb.h"
 #include <openssl/rand.h>
+#include <openssl/err.h>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <stdexcept>
 
-// Конструктор с автоматической генерацией ключей
 AES_CFB::AES_CFB() {
-    // Генерация криптографически безопасного ключа
     if (RAND_bytes(key_.data(), key_.size()) != 1) {
         throw std::runtime_error("Ошибка генерации ключа");
     }
-    
-    // Генерация криптографически безопасного вектора инициализации
     if (RAND_bytes(iv_.data(), iv_.size()) != 1) {
         throw std::runtime_error("Ошибка генерации вектора инициализации");
     }
 }
 
-// Шифрование данных
-std::vector<uint8_t> AES_CFB::encrypt(const std::string& plaintext) {
-    validate();
-    const std::string padded = add_padding(plaintext);
-    
-    AES_KEY aes_key;
-    if (AES_set_encrypt_key(key_.data(), 128, &aes_key) < 0) {
-        throw std::runtime_error("Ошибка установки ключа шифрования");
-    }
-    
-    std::vector<uint8_t> ciphertext(padded.size());
-    IV ivec = iv_;
-    int num = 0;
-    
-    AES_cfb128_encrypt(
-        reinterpret_cast<const uint8_t*>(padded.data()),
-        ciphertext.data(),
-        padded.size(),
-        &aes_key,
-        ivec.data(),
-        &num,
-        AES_ENCRYPT
-    );
-    
-    return ciphertext;
-}
+AES_CFB::~AES_CFB() {}
 
-// Дешифрование данных
-std::string AES_CFB::decrypt(const std::vector<uint8_t>& ciphertext) {
-    validate();
-    
-    AES_KEY aes_key;
-    if (AES_set_encrypt_key(key_.data(), 128, &aes_key) < 0) {
-        throw std::runtime_error("Ошибка установки ключа дешифрования");
-    }
-    
-    std::string plaintext(ciphertext.size(), '\0');
-    IV ivec = iv_;
-    int num = 0;
-    
-    AES_cfb128_encrypt(
-        ciphertext.data(),
-        reinterpret_cast<uint8_t*>(plaintext.data()),
-        ciphertext.size(),
-        &aes_key,
-        ivec.data(),
-        &num,
-        AES_DECRYPT
-    );
-    
-    return remove_padding(plaintext);
-}
-
-// Сохранение ключа в файл
-void AES_CFB::save_key(const std::string& filename) const {
-    std::ofstream file(filename, std::ios::binary);
-    if (!file) {
-        throw std::runtime_error("Ошибка открытия файла ключа для записи");
-    }
-    file.write(reinterpret_cast<const char*>(key_.data()), key_.size());
-}
-
-// Загрузка ключа из файла
-void AES_CFB::load_key(const std::string& filename) {
-    std::ifstream file(filename, std::ios::binary);
-    if (!file) {
-        throw std::runtime_error("Ошибка открытия файла ключа для чтения");
-    }
-    file.read(reinterpret_cast<char*>(key_.data()), key_.size());
-}
-
-// Преобразование байтов в HEX-строку
-std::string AES_CFB::bytes_to_hex(const uint8_t* data, size_t length) {
-    std::ostringstream oss;
-    oss << std::hex << std::setfill('0');
-    for (size_t i = 0; i < length; ++i) {
-        oss << std::setw(2) << static_cast<int>(data[i]);
-    }
-    return oss.str();
-}
-
-// Проверка валидности ключей
 void AES_CFB::validate() const {
     if (key_.size() != BLOCK_SIZE) {
         throw std::invalid_argument("Неверный размер ключа");
@@ -109,17 +25,98 @@ void AES_CFB::validate() const {
     }
 }
 
-// Добавление PKCS7 заполнения
-std::string AES_CFB::add_padding(const std::string& data) const {
-    size_t pad_len = BLOCK_SIZE - (data.size() % BLOCK_SIZE);
-    if (pad_len == 0) pad_len = BLOCK_SIZE;
-    return data + std::string(pad_len, static_cast<char>(pad_len));
+std::vector<uint8_t> AES_CFB::encrypt(const std::string& plaintext) {
+    validate();
+    
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        throw std::runtime_error("Ошибка создания контекста шифрования");
+    }
+    
+    // Инициализация контекста для шифрования
+    if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_128_cfb128(), NULL, key_.data(), iv_.data())) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("Ошибка инициализации шифрования");
+    }
+    
+    std::vector<uint8_t> ciphertext(plaintext.size() + BLOCK_SIZE);
+    int out_len = 0;
+    
+    // Обработка данных
+    if (1 != EVP_EncryptUpdate(ctx, ciphertext.data(), &out_len,
+                              reinterpret_cast<const uint8_t*>(plaintext.data()),
+                              static_cast<int>(plaintext.size()))) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("Ошибка шифрования данных");
+    }
+    
+    int final_len = 0;
+    if (1 != EVP_EncryptFinal_ex(ctx, ciphertext.data() + out_len, &final_len)) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("Ошибка финализации шифрования");
+    }
+    
+    ciphertext.resize(out_len + final_len);
+    EVP_CIPHER_CTX_free(ctx);
+    return ciphertext;
 }
 
-// Удаление PKCS7 заполнения
-std::string AES_CFB::remove_padding(const std::string& data) const {
-    if (data.empty()) return data;
-    size_t pad_len = static_cast<uint8_t>(data.back());
-    if (pad_len > BLOCK_SIZE || pad_len == 0) return data;
-    return data.substr(0, data.size() - pad_len);
+std::string AES_CFB::decrypt(const std::vector<uint8_t>& ciphertext) {
+    validate();
+    
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        throw std::runtime_error("Ошибка создания контекста дешифрования");
+    }
+    
+    // Инициализация контекста для дешифрования
+    if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_128_cfb128(), NULL, key_.data(), iv_.data())) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("Ошибка инициализации дешифрования");
+    }
+    
+    std::string plaintext(ciphertext.size(), '\0');
+    int out_len = 0;
+    
+    // Обработка данных
+    if (1 != EVP_DecryptUpdate(ctx, reinterpret_cast<uint8_t*>(&plaintext[0]), &out_len,
+                              ciphertext.data(), static_cast<int>(ciphertext.size()))) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("Ошибка дешифрования данных");
+    }
+    
+    int final_len = 0;
+    if (1 != EVP_DecryptFinal_ex(ctx, reinterpret_cast<uint8_t*>(&plaintext[0]) + out_len, &final_len)) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("Ошибка финализации дешифрования");
+    }
+    
+    plaintext.resize(out_len + final_len);
+    EVP_CIPHER_CTX_free(ctx);
+    return plaintext;
+}
+
+std::string AES_CFB::bytes_to_hex(const uint8_t* data, size_t length) {
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (size_t i = 0; i < length; ++i) {
+        oss << std::setw(2) << static_cast<int>(data[i]);
+    }
+    return oss.str();
+}
+
+void AES_CFB::save_key(const std::string& filename) const {
+    std::ofstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Ошибка открытия файла ключа для записи");
+    }
+    file.write(reinterpret_cast<const char*>(key_.data()), key_.size());
+}
+
+void AES_CFB::load_key(const std::string& filename) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Ошибка открытия файла ключа для чтения");
+    }
+    file.read(reinterpret_cast<char*>(key_.data()), key_.size());
 }
