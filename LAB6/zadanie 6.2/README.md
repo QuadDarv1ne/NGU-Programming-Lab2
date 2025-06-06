@@ -58,6 +58,10 @@
 
 ## Установка и запуск
 
+C++: ./build.sh затем build/bin/aes_cfb_demo
+
+Go: go run main.go или ./aes_cfb_go после сборки
+
 ### C++ версия
 
 ```bash
