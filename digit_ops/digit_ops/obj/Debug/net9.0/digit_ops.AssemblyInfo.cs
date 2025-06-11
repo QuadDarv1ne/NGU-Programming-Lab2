@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("digit_ops")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf60f31ec52245ed63e83ac427416ab95b159caf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a9c01ad51e01db7dcfea652d07f63136fae50b30")]
 [assembly: System.Reflection.AssemblyProductAttribute("digit_ops")]
 [assembly: System.Reflection.AssemblyTitleAttribute("digit_ops")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
