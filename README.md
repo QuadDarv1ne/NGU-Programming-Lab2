@@ -16,6 +16,11 @@ sudo apt update
 sudo apt install pipx
 pipx ensurepath
 ​​​​​​​pipx install iredis
+
+sudo apt install unattended-upgrades
+sudo dpkg-reconfigure unattended-upgrades
+
+sudo apt-get install portaudio19-dev python3-pyaudio
 ```
 
 ---
