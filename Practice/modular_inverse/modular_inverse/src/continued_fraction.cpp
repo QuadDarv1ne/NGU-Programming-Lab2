@@ -7,9 +7,16 @@
 
 using namespace std;
 
+/**
+ * Вычисляет цепную дробь для чисел a и b.
+ * @param a Первое число.
+ * @param b Второе число.
+ * @return Вектор коэффициентов цепной дроби.
+ * @throws runtime_error Если b равно нулю.
+ */
 vector<int> continued_fraction(int a, int b) {
     if (b == 0) {
-        throw runtime_error("Division by zero");
+        throw runtime_error("Деление на ноль");
     }
 
     vector<int> coefficients;
@@ -25,6 +32,11 @@ vector<int> continued_fraction(int a, int b) {
     return coefficients;
 }
 
+/**
+ * Вычисляет подходящие дроби для цепной дроби.
+ * @param coefficients Вектор коэффициентов цепной дроби.
+ * @return Вектор пар (числитель, знаменатель) подходящих дробей.
+ */
 vector<pair<int, int>> convergents(const vector<int>& coefficients) {
     vector<pair<int, int>> fractions;
     if (coefficients.empty()) return fractions;
@@ -49,10 +61,18 @@ vector<pair<int, int>> convergents(const vector<int>& coefficients) {
     return fractions;
 }
 
+/**
+ * Решает диофантово уравнение a*x + b*y = c.
+ * @param a Коэффициент при x.
+ * @param b Коэффициент при y.
+ * @param c Свободный член.
+ * @return Кортеж (x, y) - решение уравнения.
+ * @throws runtime_error Если уравнение не имеет целочисленных решений.
+ */
 tuple<int, int> solve_diophantine(int a, int b, int c) {
     int g = gcd(a, b);
     if (c % g != 0) {
-        throw runtime_error("No integer solutions exist for the given equation");
+        throw runtime_error("Уравнение не имеет целочисленных решений");
     }
 
     a /= g;

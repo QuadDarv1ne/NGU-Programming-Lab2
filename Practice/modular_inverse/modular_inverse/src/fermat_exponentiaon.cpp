@@ -1,17 +1,23 @@
 /*
-* Задание 1 реализация a^x mod p по модулю простого числа
-*
-*/
+ * Задание 1: Реализация a^x mod p по модулю простого числа
+ */
 
 #include <iostream>
 #include <cmath>
+#include <limits>
 
 using namespace std;
 
-int modExp(int a, int x, int p) {
+// Нормализация числа по модулю
+int normalize(int a, int p) {
     a %= p;
-    if (a < 0) a += p;  // Нормализация отрицательных чисел
-    
+    if (a < 0) a += p;
+    return a;
+}
+
+// Возведение в степень по модулю
+int modExp(int a, int x, int p) {
+    a = normalize(a, p);
     int result = 1;
     while (x > 0) {
         if (x & 1) {
@@ -23,11 +29,13 @@ int modExp(int a, int x, int p) {
     return result;
 }
 
+// Проверка теоремы Ферма
 bool verifyFermat(int a, int p) {
     if (a % p == 0) return true; // 0 ≡ 0 (mod p)
     return modExp(a, p - 1, p) == 1;
 }
 
+// Проверка простоты числа
 bool isPrime(int n) {
     if (n <= 1) return false;
     if (n == 2) return true;
@@ -46,12 +54,30 @@ int main() {
     int a, x, p;
     
     cout << "=== Возведение в степень по простому модулю ===\n";
+    
+    // Ввод и проверка основания
     cout << "Введите основание a: ";
-    cin >> a;
+    while (!(cin >> a)) {
+        cout << "Ошибка ввода! Попробуйте снова: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    
+    // Ввод и проверка показателя степени
     cout << "Введите показатель степени x: ";
-    cin >> x;
+    while (!(cin >> x)) {
+        cout << "Ошибка ввода! Попробуйте снова: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    
+    // Ввод и проверка модуля
     cout << "Введите простой модуль p: ";
-    cin >> p;
+    while (!(cin >> p)) {
+        cout << "Ошибка ввода! Попробуйте снова: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
 
     // Проверка простоты модуля
     if (!isPrime(p)) {

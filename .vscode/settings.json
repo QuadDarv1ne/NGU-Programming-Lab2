@@ -60,6 +60,8 @@
         "streambuf": "cpp",
         "text_encoding": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
-    }
+        "variant": "cpp",
+        "*.tcc": "cpp"
+    },
+    "cmake.sourceDirectory": "C:/Users/maksi/OneDrive/Documents/GitHub/NGU-Programming-Lab2/LAB6/zadanie_6.2/aes_cfb_cpp"
 }

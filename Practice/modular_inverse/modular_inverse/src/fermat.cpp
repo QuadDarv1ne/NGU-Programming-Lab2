@@ -1,7 +1,13 @@
 #include "fermat.h"
 #include <cmath>
 #include <stdexcept>
+#include <cstdint> // Для int64_t
 
+/**
+ * Проверяет, является ли число простым.
+ * @param n Число для проверки.
+ * @return true, если число простое, иначе false.
+ */
 bool is_prime(int n) {
     if (n <= 1) return false;
     if (n == 2) return true;
@@ -16,10 +22,17 @@ bool is_prime(int n) {
     return true;
 }
 
-long long mod_exp(long long base, long long exponent, long long mod) {
+/**
+ * Вычисляет base^exponent mod mod.
+ * @param base Основание.
+ * @param exponent Показатель степени.
+ * @param mod Модуль.
+ * @return Результат возведения в степень по модулю.
+ */
+int64_t mod_exp(int64_t base, int64_t exponent, int64_t mod) {
     if (mod == 1) return 0;
     
-    long long result = 1;
+    int64_t result = 1;
     base = base % mod;
     
     while (exponent > 0) {
@@ -34,7 +47,14 @@ long long mod_exp(long long base, long long exponent, long long mod) {
     return result;
 }
 
-long long modInverseFermat(long long a, long long p) {
+/**
+ * Находит обратный элемент по модулю с использованием теоремы Ферма.
+ * @param a Число, для которого ищется обратный элемент.
+ * @param p Простой модуль.
+ * @return Обратный элемент.
+ * @throws invalid_argument Если модуль не является простым числом или число кратно модулю.
+ */
+int64_t modInverseFermat(int64_t a, int64_t p) {
     if (!is_prime(p)) {
         throw std::invalid_argument("Модуль должен быть простым числом");
     }

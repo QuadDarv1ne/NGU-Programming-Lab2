@@ -4,7 +4,24 @@
 
 using namespace std;
 
-// Функция для вычисления НОД
+/**
+ * Нормализует число по модулю.
+ * @param a Число для нормализации.
+ * @param m Модуль.
+ * @return Нормализованное число.
+ */
+int normalize(int a, int m) {
+    a %= m;
+    if (a < 0) a += m;
+    return a;
+}
+
+/**
+ * Вычисляет наибольший общий делитель (НОД) двух чисел.
+ * @param a Первое число.
+ * @param b Второе число.
+ * @return НОД чисел a и b.
+ */
 int gcd(int a, int b) {
     while (b != 0) {
         int temp = b;
@@ -14,7 +31,12 @@ int gcd(int a, int b) {
     return a;
 }
 
-// Расширенный алгоритм Евклида
+/**
+ * Расширенный алгоритм Евклида для нахождения НОД и коэффициентов.
+ * @param a Первое число.
+ * @param b Второе число.
+ * @return Кортеж (НОД, x, y), где x и y - коэффициенты.
+ */
 tuple<int, int, int> extendEuclid(int a, int b) {
     if (b == 0) {
         return make_tuple(a, 1, 0);
@@ -27,7 +49,12 @@ tuple<int, int, int> extendEuclid(int a, int b) {
     return make_tuple(gcd, x, y);
 }
 
-// Расширенный алгоритм Евклида, возвращающий только коэффициенты
+/**
+ * Расширенный алгоритм Евклида, возвращающий только коэффициенты.
+ * @param a Первое число.
+ * @param b Второе число.
+ * @return Кортеж (x, y), где x и y - коэффициенты.
+ */
 tuple<int, int> extended_gcd(int a, int b) {
     if (b == 0) {
         return make_tuple(1, 0);
@@ -37,14 +64,20 @@ tuple<int, int> extended_gcd(int a, int b) {
     }
 }
 
-// Функция для нахождения обратного элемента с использованием расширенного алгоритма Евклида
+/**
+ * Находит обратный элемент по модулю с использованием расширенного алгоритма Евклида.
+ * @param a Число, для которого ищется обратный элемент.
+ * @param m Модуль.
+ * @return Обратный элемент.
+ * @throws invalid_argument Если модуль не положительный.
+ * @throws runtime_error Если обратный элемент не существует.
+ */
 int modInverseEuclid(int a, int m) {
     if (m <= 0) {
         throw invalid_argument("Модуль должен быть положительным");
     }
 
-    a %= m;
-    if (a < 0) a += m;
+    a = normalize(a, m);
     if (a == 0) {
         throw runtime_error("Обратный элемент не существует");
     }
@@ -55,8 +88,6 @@ int modInverseEuclid(int a, int m) {
         throw runtime_error("Обратный элемент не существует");
     }
 
-    x %= m;
-    if (x < 0) x += m;
-
+    x = normalize(x, m);
     return x;
 }

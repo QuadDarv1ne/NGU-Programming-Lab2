@@ -10,8 +10,33 @@
 #include <cstdlib>  // Для abs()
 #include <limits>
 #include <ios>
+#include <cstdint> // Для int64_t
 
 using namespace std;
+
+// Функция для безопасного ввода целого числа
+int safe_input_int(const string& prompt) {
+    int value;
+    cout << prompt;
+    while (!(cin >> value)) {
+        cout << "Ошибка ввода! Попробуйте снова: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    return value;
+}
+
+// Функция для безопасного ввода int64_t
+int64_t safe_input_int64(const string& prompt) {
+    int64_t value;
+    cout << prompt;
+    while (!(cin >> value)) {
+        cout << "Ошибка ввода! Попробуйте снова: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    return value;
+}
 
 void display_menu() {
     cout << "\n=== Модулярная арифметика и криптография ===" << endl;
@@ -29,50 +54,45 @@ void run_main_menu() {
     
     do {
         display_menu();
-        cin >> choice;
+        choice = safe_input_int("Выберите опцию: ");
         
         try {
             switch (choice) {
                 case 1: {  // Базовый метод (перебор)
-                    int v, c;
-                    cout << "Введите v и c: ";
-                    cin >> v >> c;
+                    int v = safe_input_int("Введите v: ");
+                    int c = safe_input_int("Введите c: ");
                     
                     int d = modularInverse(v, c);
                     cout << "Обратный элемент d = " << d << endl;
                     
-                    long long check = static_cast<long long>(v) * d % c;
+                    int64_t check = static_cast<int64_t>(v) * d % c;
                     if (check < 0) check += c;
                     cout << "Проверка: " << v << " * " << d << " mod " << c << " = " << check << endl;
                     break;
                 }
                 case 2: {  // Алгоритм Евклида
-                    int v, c;
-                    cout << "Введите v и c: ";
-                    cin >> v >> c;
+                    int v = safe_input_int("Введите v: ");
+                    int c = safe_input_int("Введите c: ");
                     
                     int d = modInverseEuclid(v, c);
                     cout << "Обратный элемент d = " << d << endl;
                     
-                    long long check = static_cast<long long>(v) * d % c;
+                    int64_t check = static_cast<int64_t>(v) * d % c;
                     if (check < 0) check += c;
                     cout << "Проверка: " << v << " * " << d << " mod " << c << " = " << check << endl;
                     break;
                 }
                 case 3: {  // Теорема Ферма
-                    long long a, p;
-                    cout << "Введите число a: ";
-                    cin >> a;
-                    cout << "Введите простой модуль p: ";
-                    cin >> p;
+                    int64_t a = safe_input_int64("Введите число a: ");
+                    int64_t p = safe_input_int64("Введите простой модуль p: ");
                     
-                    long long inverse = modInverseFermat(a, p);
+                    int64_t inverse = modInverseFermat(a, p);
                     cout << "Обратный элемент: " << a << "^{-1} mod " << p << " = " << inverse << endl;
                     cout << "Проверка: (" << a << " * " << inverse << ") mod " << p << " = " 
                               << (a * inverse) % p << endl;
                     
                     if (a % p != 0) {
-                        long long fermat = mod_exp(a, p - 1, p);
+                        int64_t fermat = mod_exp(a, p - 1, p);
                         cout << "Проверка малой теоремы Ферма: " << a << "^{" << p-1 << "} mod " << p 
                                   << " = " << fermat << endl;
                     }
@@ -83,9 +103,9 @@ void run_main_menu() {
                     break;
                 }
                 case 5: {  // Цепная дробь и диофантово уравнение
-                    int a, b, c;
-                    cout << "Введите коэффициенты a, b и c для уравнения a*x + b*y = c: ";
-                    cin >> a >> b >> c;
+                    int a = safe_input_int("Введите коэффициент a: ");
+                    int b = safe_input_int("Введите коэффициент b: ");
+                    int c = safe_input_int("Введите свободный член c: ");
                     
                     try {
                         // Решение уравнения
@@ -132,9 +152,6 @@ void run_main_menu() {
         }
         catch (const exception& e) {
             cerr << "Ошибка: " << e.what() << endl;
-            // Сбрасываем флаги ошибок ввода
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
         
     } while (true);  // Бесконечный цикл с выходом через return
