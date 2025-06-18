@@ -12,6 +12,7 @@
 #include <ios>
 #include <cstdint> // Для int64_t
 #include <clocale>
+#include "set_encoding.h"
 
 using namespace std;
 
@@ -52,6 +53,8 @@ void display_menu() {
 }
 
 void run_main_menu() {
+    setConsoleEncoding();
+
     int choice;
     
     do {

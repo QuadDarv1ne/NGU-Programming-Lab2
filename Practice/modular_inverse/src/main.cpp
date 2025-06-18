@@ -1,7 +1,10 @@
 #include "menu.h"
+#include "set_encoding.h"
 #include <clocale>
 
 int main() {
+    setConsoleEncoding();
+    
     // Установка локали для поддержки русского языка
     setlocale(LC_ALL, "ru_RU.UTF-8");
     
