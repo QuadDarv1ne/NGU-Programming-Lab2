@@ -3,7 +3,7 @@
 #include "fermat.h"
 #include "modular_inverse.h"
 #include "continued_fraction.h"
-#include "rsa.h"
+#include "rsa_crypto.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -11,6 +11,7 @@
 #include <limits>
 #include <ios>
 #include <cstdint> // Для int64_t
+#include <clocale>
 
 using namespace std;
 
@@ -43,9 +44,10 @@ void display_menu() {
     cout << "1. Базовое вычисление обратного элемента (перебор)" << endl;
     cout << "2. Вычисление обратного элемента через алгоритм Евклида" << endl;
     cout << "3. Вычисление обратного элемента через теорему Ферма" << endl;
-    cout << "4. Демонстрация RSA шифрования" << endl;
+    cout << "4. Демонстрация RSA шифрования (openssl)" << endl;
     cout << "5. Вычисление цепной дроби и решение диофантова уравнения" << endl;
-    cout << "6. Выход "<< endl;
+    cout << "6. RSA Шифрование/Дешифрование (полный функционал)" << endl;
+    cout << "7. Выход "<< endl;
     cout << "Выберите опцию: ";
 }
 
@@ -54,11 +56,11 @@ void run_main_menu() {
     
     do {
         display_menu();
-        choice = safe_input_int("Выберите опцию: ");
+        choice = safe_input_int("");
         
         try {
             switch (choice) {
-                case 1: {  // Базовый метод (перебор)
+                case 1: {
                     int v = safe_input_int("Введите v: ");
                     int c = safe_input_int("Введите c: ");
                     
@@ -70,7 +72,7 @@ void run_main_menu() {
                     cout << "Проверка: " << v << " * " << d << " mod " << c << " = " << check << endl;
                     break;
                 }
-                case 2: {  // Алгоритм Евклида
+                case 2: {
                     int v = safe_input_int("Введите v: ");
                     int c = safe_input_int("Введите c: ");
                     
@@ -82,41 +84,37 @@ void run_main_menu() {
                     cout << "Проверка: " << v << " * " << d << " mod " << c << " = " << check << endl;
                     break;
                 }
-                case 3: {  // Теорема Ферма
+                case 3: {
                     int64_t a = safe_input_int64("Введите число a: ");
                     int64_t p = safe_input_int64("Введите простой модуль p: ");
                     
                     int64_t inverse = modInverseFermat(a, p);
                     cout << "Обратный элемент: " << a << "^{-1} mod " << p << " = " << inverse << endl;
                     cout << "Проверка: (" << a << " * " << inverse << ") mod " << p << " = " 
-                              << (a * inverse) % p << endl;
+                         << (a * inverse) % p << endl;
                     
                     if (a % p != 0) {
                         int64_t fermat = mod_exp(a, p - 1, p);
                         cout << "Проверка малой теоремы Ферма: " << a << "^{" << p-1 << "} mod " << p 
-                                  << " = " << fermat << endl;
+                             << " = " << fermat << endl;
                     }
                     break;
                 }
-                case 4: {  // RSA
-                    run_rsa_demo();
+                case 4: {
+                    run_rsa_crypto();
                     break;
                 }
-                case 5: {  // Цепная дробь и диофантово уравнение
+                case 5: {
                     int a = safe_input_int("Введите коэффициент a: ");
                     int b = safe_input_int("Введите коэффициент b: ");
                     int c = safe_input_int("Введите свободный член c: ");
                     
                     try {
-                        // Решение уравнения
                         auto [x, y] = solve_diophantine(a, b, c);
-                        
-                        // Вывод результатов
                         cout << "Решено: " << a << "*(" << x << ") + " 
-                                << b << "*(" << y << ") = " << c << "\n";
+                             << b << "*(" << y << ") = " << c << "\n";
                         cout << "Проверка: " << a*x + b*y << " = " << c << "\n\n";
                         
-                        // Вывод цепной дроби (используем абсолютные значения)
                         int a_abs = abs(a);
                         int b_abs = abs(b);
                         if (b_abs == 0) {
@@ -130,7 +128,6 @@ void run_main_menu() {
                             }
                             cout << "]\n";
                             
-                            // Вывод подходящих дробей
                             vector<pair<int, int>> conv = convergents(cf);
                             cout << "\nПодходящие дроби:\n";
                             for (const auto& f : conv) {
@@ -142,9 +139,13 @@ void run_main_menu() {
                     }
                     break;
                 }
-                case 6: {  // Выход
+                case 6: {
+                    run_rsa_crypto();
+                    break;
+                }
+                case 7: {
                     cout << "Выход из программы..." << endl;
-                    return;  // Немедленный выход из функции
+                    return;
                 }
                 default:
                     cout << "Неверный выбор. Попробуйте снова." << endl;
@@ -153,6 +154,8 @@ void run_main_menu() {
         catch (const exception& e) {
             cerr << "Ошибка: " << e.what() << endl;
         }
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
-    } while (true);  // Бесконечный цикл с выходом через return
+    } while (true); // Бесконечный цикл с выходом через return
 }

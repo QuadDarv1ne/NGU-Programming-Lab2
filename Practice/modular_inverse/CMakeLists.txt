@@ -22,9 +22,16 @@ add_executable(modular_inverse
     src/euclid.cpp
     src/fermat.cpp
     src/modular_inverse.cpp
-    src/rsa.cpp
+    src/rsa_crypto.cpp
     src/continued_fraction.cpp
 )
 
 # Линковка с OpenSSL
 target_link_libraries(modular_inverse ${OPENSSL_LIBRARIES})
+
+# Добавьте следующие настройки
+if (WIN32)
+    add_compile_options(/utf-8)
+else()
+    add_compile_options(-finput-charset=UTF-8 -fexec-charset=UTF-8)
+endif()
