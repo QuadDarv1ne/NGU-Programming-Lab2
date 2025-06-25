@@ -4,6 +4,7 @@
 #include <clocale>
 #include <cstdlib>
 #include <iostream>
+#include <stdexcept>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -11,16 +12,36 @@
 
 static void setConsoleEncoding() {
     #ifdef _WIN32
+    // Настройки для Windows
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
+    setlocale(LC_ALL, "ru_RU.UTF-8");
+    #else
+    // Настройки для Linux/WSL/MacOS
+    try {
+        // Попробуем разные варианты локалей
+        const char* locales[] = {
+            "C.UTF-8", 
+            "en_US.UTF-8", 
+            "ru_RU.UTF-8",
+            ""
+        };
+        
+        for (const char* loc : locales) {
+            if (std::setlocale(LC_ALL, loc) != nullptr) {
+                break;
+            }
+        }
+    } catch (...) {
+        // Игнорируем ошибки, если не удалось установить локаль
+    }
     #endif
     
-    setlocale(LC_ALL, "ru_RU.UTF-8");
-    
-    // Перенаправление потоков для корректной работы UTF-8
+    // Настройки потоков
     std::ios_base::sync_with_stdio(false);
-    std::wcout.imbue(std::locale("ru_RU.UTF-8"));
-    std::wcin.imbue(std::locale("ru_RU.UTF-8"));
+    std::locale::global(std::locale(""));
+    std::wcout.imbue(std::locale());
+    std::wcin.imbue(std::locale());
 }
 
-#endif
+#endif // SET_ENCODING_H
