@@ -4,22 +4,19 @@
 #include <vector>
 #include <cmath>
 #include <utility>
+#include <stdexcept>
+
 using namespace std;
 
-/**
-* Вычисляет коэффициенты цепной дроби для числа a/b.
-* Цепная дробь представляется в виде [a0; a1, a2, ..., an].
-* @param a Числитель дроби.
-* @param b Знаменатель дроби.
-* @return Вектор коэффициентов цепной дроби.
-* @note Если b=0, возвращается пустой вектор.
-*/
 vector<int64_t> computeContinuedFraction(int64_t a, int64_t b) {
     vector<int64_t> coefficients;
 
     if (b == 0) {
-        return coefficients;
+        throw runtime_error("Знаменатель не может быть нулем");
     }
+
+    a = abs(a);
+    b = abs(b);
 
     while (b != 0) {
         int64_t quotient = a / b;
@@ -32,14 +29,6 @@ vector<int64_t> computeContinuedFraction(int64_t a, int64_t b) {
     return coefficients;
 }
 
-/**
-* Вычисляет подходящие дроби для заданных коэффициентов цепной дроби.
-* Подходящие дроби представляются в виде пар (числитель, знаменатель).
-* @param coefficients Вектор коэффициентов цепной дроби.
-* @param convergents Ссылка на вектор для сохранения подходящих дробей.
-* @note Результат сохраняется в параметре convergents.
-*       Если coefficients пуст, convergents также будет пустым.
-*/
 void computeConvergents(const vector<int64_t>& coefficients, 
                        vector<pair<int64_t, int64_t>>& convergents) {
     convergents.clear();
@@ -48,7 +37,6 @@ void computeConvergents(const vector<int64_t>& coefficients,
         return;
     }
 
-    // Инициализация P_{-2}, P_{-1}, Q_{-2}, Q_{-1}
     int64_t P_prev2 = 0;
     int64_t P_prev1 = 1;
     int64_t Q_prev2 = 1;
@@ -56,14 +44,11 @@ void computeConvergents(const vector<int64_t>& coefficients,
 
     for (size_t i = 0; i < coefficients.size(); ++i) {
         int64_t a_i = coefficients[i];
-
-        // Вычисляем P_i и Q_i
         int64_t P_i = a_i * P_prev1 + P_prev2;
         int64_t Q_i = a_i * Q_prev1 + Q_prev2;
 
         convergents.emplace_back(P_i, Q_i);
 
-        // Обновляем предыдущие значения для следующей итерации
         P_prev2 = P_prev1;
         P_prev1 = P_i;
         Q_prev2 = Q_prev1;
@@ -71,68 +56,40 @@ void computeConvergents(const vector<int64_t>& coefficients,
     }
 }
 
-/**
-* Выводит на экран цепную дробь и подходящие дроби для числа a/b.
-* Формат вывода включает коэффициенты цепной дроби и последовательность
-* подходящих дробей с их десятичными приближениями.
-* @param a Числитель дроби.
-* @param b Знаменатель дроби.
-* @note Если b=0, выводится сообщение об ошибке.
-*/
-void printContinuedFraction(int64_t a, int64_t b) {
-    cout << "Вычисление цепной дроби для " << a << "/" << b << ":\n";
-
-    vector<int64_t> coefficients = computeContinuedFraction(a, b);
-
-    if (coefficients.empty()) {
-        cout << "Невозможно вычислить цепную дробь (деление на ноль).\n";
-        return;
-    }
-
-    cout << "Коэффициенты цепной дроби: [";
-    for (size_t i = 0; i < coefficients.size(); ++i) {
-        cout << coefficients[i];
-        if (i != coefficients.size() - 1) {
-            cout << (i == 0 ? ";" : ", ");
-        }
-    }
-    cout << "]\n";
-
-    vector<pair<int64_t, int64_t>> convergents;
-    computeConvergents(coefficients, convergents);
-
-    cout << "Подходящие дроби:\n";
-    for (size_t i = 0; i < convergents.size(); ++i) {
-        cout << i+1 << ": " << convergents[i].first << "/" << convergents[i].second;
-
-        // Вычисляем десятичное приближение
-        if (convergents[i].second != 0) {
-            double value = static_cast<double>(convergents[i].first) / convergents[i].second;
-            cout << " ≈ " << value;
-        }
-
-        cout << endl;
-    }
+// Реализация функций для интерфейса (int версия)
+vector<int> continued_fraction(int a, int b) {
+    auto result = computeContinuedFraction(static_cast<int64_t>(a), static_cast<int64_t>(b));
+    return vector<int>(result.begin(), result.end());
 }
 
-/**
-* Основная функция программы.
-* Запрашивает у пользователя числитель и знаменатель дроби,
-* затем выводит её цепную дробь и подходящие дроби.
-* @return 0 в случае успешного выполнения, 1 при ошибке ввода.
-*/
-int main() {
-    int64_t a, b;
+vector<pair<int, int>> convergents(const vector<int>& coefficients) {
+    vector<pair<int64_t, int64_t>> temp;
+    vector<pair<int, int>> result;
+    
+    vector<int64_t> coeffs(coefficients.begin(), coefficients.end());
+    computeConvergents(coeffs, temp);
+    
+    for (const auto& p : temp) {
+        result.emplace_back(static_cast<int>(p.first), static_cast<int>(p.second));
+    }
+    
+    return result;
+}
 
-    cout << "Введите числитель и знаменатель дроби (через пробел): ";
-    cin >> a >> b;
-
-    if (b == 0) {
-        cout << "Ошибка: знаменатель не может быть нулем.\n";
-        return 1;
+tuple<int, int> solve_diophantine(int a, int b, int c) {
+    // Реализация решения диофантова уравнения
+    auto [gcd, x, y] = extendEuclid(abs(a), abs(b));
+    
+    if (c % gcd != 0) {
+        throw runtime_error("Уравнение не имеет решения");
     }
 
-    printContinuedFraction(a, b);
+    int multiplier = c / gcd;
+    x *= multiplier;
+    y *= multiplier;
 
-    return 0;
+    if (a < 0) x = -x;
+    if (b < 0) y = -y;
+
+    return make_tuple(x, y);
 }
