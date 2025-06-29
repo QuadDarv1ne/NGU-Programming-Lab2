@@ -1,0 +1,29 @@
+# Универсальный uninstall.cmake.in
+cmake_minimum_required(VERSION 3.10)
+
+if(NOT EXISTS "@CMAKE_INSTALL_MANIFEST@")
+    message(FATAL_ERROR "Install manifest not found: @CMAKE_INSTALL_MANIFEST@")
+endif()
+
+file(READ "@CMAKE_INSTALL_MANIFEST@" files)
+string(STRIP "${files}" files)
+string(REPLACE "\n" ";" files "${files}")
+
+foreach(file ${files})
+    # Нормализация пути для текущей ОС
+    file(TO_CMAKE_PATH "${file}" file)
+    get_filename_component(abs_file "${file}" ABSOLUTE)
+
+    if(EXISTS "${abs_file}" OR IS_SYMLINK "${abs_file}")
+        message(STATUS "Removing: ${abs_file}")
+        file(REMOVE "${abs_file}")
+        
+        if(EXISTS "${abs_file}")
+            message(WARNING "Failed to remove: ${abs_file}")
+        endif()
+    else()
+        message(STATUS "Already removed: ${abs_file}")
+    endif()
+endforeach()
+
+message(STATUS "Uninstall completed")
